@@ -16,12 +16,12 @@ fi
 haproxy_remove() {
   NODE=`echo $@ | awk '{print \$1 }'`
 
-  log "$0: Removing node $NODE for line: $1"
+  log "$0: Removing node $NODE for line: $@"
   sed -i '' "/${NODE} /d" $HAPROXY_CONFIG
 }
 
 haproxy_add() {
-  haproxy_remove $1
+  haproxy_remove $@
   log "$0: Adding node $NODE for line: $line"
   echo "$@ $NODE_PORT" | awk '{ printf "  server %s %s:%s check\n", $1, $2, $5 }' >> $HAPROXY_CONFIG
 }

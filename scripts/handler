@@ -17,7 +17,7 @@ haproxy_remove() {
   NODE=`echo $@ | awk '{print \$1 }'`
 
   log "$0: Removing node $NODE for line: $@"
-  sed -i '' "/${NODE} /d" $HAPROXY_CONFIG
+  sed -i'' "/${NODE} /d" $HAPROXY_CONFIG
 }
 
 haproxy_add() {

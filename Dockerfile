@@ -10,15 +10,14 @@ ADD config/haproxy.enabled /etc/default/haproxy
 ADD config/haproxy.cfg /etc/haproxy/haproxy.cfg
 ADD config/supervisord-haproxy.conf /etc/supervisor/conf.d/haproxy.conf
 ADD config/supervisord-serf.conf /etc/supervisor/conf.d/serf.conf
-ADD scripts/leave.sh /usr/local/bin/leave.sh
-ADD scripts/join.sh /usr/local/bin/join.sh
-ADD scripts/start_serf.sh /usr/local/bin/start_serf.sh
+ADD scripts/handler /usr/local/bin/handler
+ADD scripts/start_serf /usr/local/bin/start_serf
 ADD https://dl.bintray.com/mitchellh/serf/0.6.0_linux_amd64.zip serf.zip
 
 RUN unzip serf.zip
 RUN rm serf.zip
 RUN mv serf /usr/local/bin/
-RUN chmod +x /usr/local/bin/leave.sh /usr/local/bin/join.sh /usr/local/bin/start_serf.sh
+RUN chmod +x /usr/local/bin/handler /usr/local/bin/start_serf
 
 EXPOSE 8040/tcp 7946/tcp 7946/udp
 

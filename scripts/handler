@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+: ${MATCH_NODE_ROLE:="web"}
+: ${SERF_ROLE:="lb"}
+: ${HAPROXY_CONFIG:="/etc/haproxy/haproxy.cfg"}
+: ${NODE_PORT:=7474}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+[[ -f $DIR/logger ]] && source $DIR/logger
+
+if [ "x${SERF_SELF_ROLE}" != "x${SERF_ROLE}" ]; then
+  log "$0: Ignoring because role $SERF_SELF_ROLE does not match $SERF_ROLE"
+  exit 0
+fi
+
+haproxy_remove() {
+  NODE=`echo $@ | awk '{print \$1 }'`
+
+  log "$0: Removing node $NODE for line: $1"
+  sed -i '' "/${NODE} /d" $HAPROXY_CONFIG
+}
+
+haproxy_add() {
+  haproxy_remove $1
+  log "$0: Adding node $NODE for line: $line"
+  echo "$@ $NODE_PORT" | awk '{ printf "  server %s %s:%s check\n", $1, $2, $5 }' >> $HAPROXY_CONFIG
+}
+
+while read line; do
+  ROLE=`echo $line | awk '{print \$3 }'`
+  NODE=`echo $line | awk '{print \$1 }'`
+
+  if [ "x${ROLE}" != "x${MATCH_NODE_ROLE}" ]; then
+    log "$0: Skipping node $NODE because role $ROLE does not match $MATCH_NODE_ROLE"
+    continue
+  fi
+
+  case $SERF_EVENT in
+    member-join)
+      haproxy_add $line
+      ;;
+    member-leave|member-failed)
+      haproxy_remove $line
+      ;;
+    *)
+      log "$0: No SERF_EVENT received"
+      ;;
+  esac
+done
+
+haproxy -f $HAPROXY_CONFIG -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)

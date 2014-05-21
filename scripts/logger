@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+: ${SYSLOG_SERVER:="localhost"}
+: ${SYSLOG_TAG:="redtruck"}
+
+log() {
+  [[ $1 ]] || exit 1
+
+  case $OSTYPE in
+    darwin*)
+      logger -t $SYSLOG_TAG $@
+      ;;
+    *)
+      logger -n $SYSLOG_SERVER -t $SYSLOG_TAG $@
+      ;;
+  esac
+}

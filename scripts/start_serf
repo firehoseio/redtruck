@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+: ${SERF_CLUSTER:="redtruck"}
+: ${SERF_ROLE:="lb"}
+
+/usr/local/bin/serf agent -tag role=$SERF_ROLE -discover $SERF_CLUSTER -event-handler /usr/local/bin/handler

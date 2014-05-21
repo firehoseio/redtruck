@@ -5,5 +5,5 @@
 : ${SYSLOG_TAG:="redtruck"}
 
 log() {
-  echo $@ | nc -w 1 -u $SYSLOG_SERVER $SYSLOG_PORT
+  echo "<1>1 - $HOSTNAME $SYSLOG_TAG - - - $@" | nc -w 1 -u $SYSLOG_SERVER $SYSLOG_PORT
 }

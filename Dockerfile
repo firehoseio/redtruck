@@ -12,6 +12,7 @@ ADD config/supervisord-haproxy.conf /etc/supervisor/conf.d/haproxy.conf
 ADD config/supervisord-serf.conf /etc/supervisor/conf.d/serf.conf
 ADD scripts/handler /usr/local/bin/handler
 ADD scripts/start_serf /usr/local/bin/start_serf
+ADD scripts/logger /usr/local/bin/logger
 ADD https://dl.bintray.com/mitchellh/serf/0.6.0_linux_amd64.zip serf.zip
 
 RUN unzip serf.zip

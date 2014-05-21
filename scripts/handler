@@ -1,0 +1,31 @@
+#!/bin/bash
+
+: ${MATCH_NODE_ROLE:="web"}
+: ${MATCH_LB_ROLE:="lb"}
+: ${HAPROXY_CONFIG:="/etc/haproxy/haproxy.cfg"}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+[[ -f $DIR/logger ]] && source $DIR/logger
+
+if [ "x${SERF_SELF_ROLE}" != "x${MATCH_LB_ROLE}" ]; then
+    log "$0: Ignoring because role $SERF_SELF_ROLE is does not match $MATCH_LB_ROLE"
+    exit 0
+fi
+
+while read line; do
+    ROLE=`echo $line | awk '{print \$3 }'`
+    NODE=`echo $line | awk '{print \$1 }'`
+
+    if [ "x${ROLE}" != "x${MATCH_NODE_ROLE}" ]; then
+        log "$0: Skipping node $NODE because role $ROLE does not match $MATCH_NODE_ROLE"
+        continue
+    fi
+
+    log "$0: Adding node $NODE for line: $line"
+    sed -i'' "/${NODE} /d" $HAPROXY_CONFIG
+    echo $line | \
+        awk '{ printf "  server %s %s:7474 check\n", $1, $2 }' >> $HAPROXY_CONFIG
+done
+
+haproxy -f $HAPROXY_CONFIG -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)
+

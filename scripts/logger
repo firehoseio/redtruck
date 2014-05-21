@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+: ${SYSLOG_SERVER:="localhost"}
+: ${SYSLOG_TAG:="redtruck"}
+
+log() {
+  [[ $1 ]] && logger -n $SYSLOG_SERVER --tag $SYSLOG_TAG $@
+}
+
